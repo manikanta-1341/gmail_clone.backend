@@ -12,10 +12,11 @@ module.exports.Login = async (req, res, next) => {
         const user = await Users.findOne({ username: username })
         if (user) {
             const token = jwt.sign({user}, process.env.SECRET_KEY, { expiresIn: "1hr" })
+            console.log("token::",token)
             if(user.verification === "yes"){
                 const isvalid = await bcrypt.compare(password, user.password)
                 if (isvalid) {
-                    // console.log(token)
+                    console.log(token)
                     res.send(token)
                 }
                 else {
