@@ -8,16 +8,15 @@ module.exports.SendMail = async (req, res) => {
     try {
         const receiver = await Users.findOne({ username: req.body.to })
         const sender = await Users.findOne({ username: req.body.from })
-        
+
         if (receiver) {
-            
             let time = new Date().toGMTString()
-            let id = mongoose.Types.ObjectId()
+            let id = mongoose.Types.ObjectId()             
             let res_date = new Date().toUTCString().split(" ").filter((e, i) => i === 1 || i === 2).join(" ")
 
             receiver.inbox.push({ _id: mongoose.Types.ObjectId(), id: id, date: res_date, Time: time, from: req.body.from, subject: req.body.subject, msg: req.body.textarea, read: "no" })
             sender.sentMail.push({ _id: id, date: res_date, Time: time, to: req.body.to, subject: req.body.subject, msg: req.body.textarea, read: "no" })
-           
+
             receiver.save()
             sender.save()
             res.send("success")
@@ -188,7 +187,7 @@ module.exports.deleteFromDraft = async (req, res) => {
             )
             response = await Users.findOneAndUpdate(
                 { _id: req.params.id },
-                { $push: { bin: {...getMsg.draft[0],draft:"yes"} } },
+                { $push: { bin: { ...getMsg.draft[0], draft: "yes" } } },
                 { new: true }
             )
 
@@ -429,7 +428,7 @@ module.exports.RestoreAll = async (req, res) => {
                     { new: true }
                 )
             }
-            if(getmsg.bin[0].draft){
+            if (getmsg.bin[0].draft) {
                 await Users.findOneAndUpdate(
                     { "bin._id": mongoose.Types.ObjectId(e._id) },
                     { $unset: { "bin.$.draft": "yes" } },
@@ -480,7 +479,7 @@ module.exports.RestoreAll = async (req, res) => {
                 }
                 // console.log(response)
             }
-            
+
         })
         res.send(response)
     } catch (err) {
@@ -496,7 +495,7 @@ module.exports.Draft = async (req, res) => {
         let res_date = new Date().toUTCString().split(" ").filter((e, i) => i === 1 || i === 2).join(" ")
         let response = await Users.findOneAndUpdate(
             { _id: mongoose.Types.ObjectId(req.params.id) },
-            { $push: { draft: {...req.body.msg,_id:id,Time:time,date:res_date,} } },
+            { $push: { draft: { ...req.body.msg, _id: id, Time: time, date: res_date, } } },
             { new: true }
         )
         res.send(response)
