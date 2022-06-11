@@ -10,20 +10,20 @@ module.exports.SendMail = async (req, res) => {
         const sender = await Users.findOne({ username: req.body.from })
         
         if (receiver) {
-            
-            let time = new Date().toLocaleTimeString().split("")
-            let res_Time = ""
+            let time = new Date().toGMTString()
+            //let time = new Date().toLocaleTimeString().split("")
+            //let res_Time = ""
             let id = mongoose.Types.ObjectId()
-            if (time.length === 11) {
-                res_Time = time.filter((e, i) => i != 5 && i != 6 && i !== 7)
-            }
-            else {
-                res_Time = time.filter((e, i) => i != 4 && i != 5 && i !== 6)
-            }
+//             if (time.length === 11) {
+//                 res_Time = time.filter((e, i) => i != 5 && i != 6 && i !== 7)
+//             }
+//             else {
+//                 res_Time = time.filter((e, i) => i != 4 && i != 5 && i !== 6)
+//             }
             let res_date = new Date().toUTCString().split(" ").filter((e, i) => i === 1 || i === 2).join(" ")
 
-            receiver.inbox.push({ _id: mongoose.Types.ObjectId(), id: id, date: res_date, Time: res_Time.join(""), from: req.body.from, subject: req.body.subject, msg: req.body.textarea, read: "no" })
-            sender.sentMail.push({ _id: id, date: res_date, Time: res_Time.join(""), to: req.body.to, subject: req.body.subject, msg: req.body.textarea, read: "no" })
+            receiver.inbox.push({ _id: mongoose.Types.ObjectId(), id: id, date: res_date, Time: time, from: req.body.from, subject: req.body.subject, msg: req.body.textarea, read: "no" })
+            sender.sentMail.push({ _id: id, date: res_date, Time: time, to: req.body.to, subject: req.body.subject, msg: req.body.textarea, read: "no" })
            
             receiver.save()
             sender.save()
