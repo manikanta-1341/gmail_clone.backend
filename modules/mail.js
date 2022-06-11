@@ -11,19 +11,12 @@ module.exports.SendMail = async (req, res) => {
         
         if (receiver) {
             
-            let time = new Date().toLocaleTimeString().split("")
-            let res_Time = ""
+            let time = new Date().toGMTString()
             let id = mongoose.Types.ObjectId()
-            if (time.length === 11) {
-                res_Time = time.filter((e, i) => i != 5 && i != 6 && i !== 7)
-            }
-            else {
-                res_Time = time.filter((e, i) => i != 4 && i != 5 && i !== 6)
-            }
             let res_date = new Date().toUTCString().split(" ").filter((e, i) => i === 1 || i === 2).join(" ")
 
-            receiver.inbox.push({ _id: mongoose.Types.ObjectId(), id: id, date: res_date, Time: res_Time.join(""), from: req.body.from, subject: req.body.subject, msg: req.body.textarea, read: "no" })
-            sender.sentMail.push({ _id: id, date: res_date, Time: res_Time.join(""), to: req.body.to, subject: req.body.subject, msg: req.body.textarea, read: "no" })
+            receiver.inbox.push({ _id: mongoose.Types.ObjectId(), id: id, date: res_date, Time: time, from: req.body.from, subject: req.body.subject, msg: req.body.textarea, read: "no" })
+            sender.sentMail.push({ _id: id, date: res_date, Time: time, to: req.body.to, subject: req.body.subject, msg: req.body.textarea, read: "no" })
            
             receiver.save()
             sender.save()
@@ -496,98 +489,14 @@ module.exports.RestoreAll = async (req, res) => {
     }
 }
 
-// module.exports.RestoreOne = async (req, res) => {
-//     try {
-//         let arr = req.body.arr
-//         let response = ""
-//         arr.map(async (e) => {
-//             // console.log("in restore", e)
-//             let getmsg = await Users.findOne(
-//                 { _id: mongoose.Types.ObjectId(req.params.id), "bin._id": mongoose.Types.ObjectId(e._id) },
-//                 { "bin.$": 1, _id: 0 }
-//             )
-//             if (getmsg.bin[0].starred) {
-//                 await Users.findOneAndUpdate(
-//                     { "bin._id": mongoose.Types.ObjectId(e._id) },
-//                     { $unset: { "bin.$.starred": "yes" } },
-//                     { new: true }
-//                 )
-//             }
-//             if(getmsg.bin[0].draft){
-//                 await Users.findOneAndUpdate(
-//                     { "bin._id": mongoose.Types.ObjectId(e._id) },
-//                     { $unset: { "bin.$.draft": "yes" } },
-//                     { new: true }
-//                 )
-//                 response = await Users.findOneAndUpdate(
-//                     { _id: mongoose.Types.ObjectId(req.params.id) },
-//                     { $push: { draft: getmsg.bin[0] } },
-//                     { new: true }
-//                 )
-//             }
-//             if (getmsg.bin[0].from) {
-//                 await Users.findOneAndUpdate(
-//                     { _id: mongoose.Types.ObjectId(req.params.id) },
-//                     { $pull: { bin: { _id: mongoose.Types.ObjectId(e._id) } } },
-//                     { new: true }
-//                 )
-//                 let duplicate = await Users.findOne(
-//                     { "inbox._id": mongoose.Types.ObjectId(e._id) },
-//                     { "inbox.$": 1, _id: 0 }
-//                 )
-//                 if (duplicate === null) {
-
-//                     response = await Users.findOneAndUpdate(
-//                         { _id: mongoose.Types.ObjectId(req.params.id) },
-//                         { $push: { inbox: getmsg.bin[0] } },
-//                         { new: true }
-//                     )
-//                 }
-//                 // console.log(response)
-//             }
-//             else if (getmsg.bin[0].to) {
-//                 await Users.findOneAndUpdate(
-//                     { _id: mongoose.Types.ObjectId(req.params.id) },
-//                     { $pull: { bin: { _id: mongoose.Types.ObjectId(e._id) } } },
-//                     { new: true }
-//                 )
-//                 let duplicate = await Users.findOne(
-//                     { "sentMail._id": mongoose.Types.ObjectId(e._id) },
-//                     { "sentMail.$": 1, _id: 0 }
-//                 )
-//                 if (duplicate === null) {
-//                     response = await Users.findOneAndUpdate(
-//                         { _id: mongoose.Types.ObjectId(req.params.id) },
-//                         { $push: { sentMail: getmsg.bin[0] } },
-//                         { new: true }
-//                     )
-//                 }
-//                 // console.log(response)
-//             }
-            
-//         })
-//         res.send(response)
-//     } catch (err) {
-//         console.log(err)
-//         res.send({ msg: err })
-//     }
-// }
-
 module.exports.Draft = async (req, res) => {
     try {
-        let time = new Date().toLocaleTimeString().split("")
-        let res_Time = ""
+        let time = new Date().toGMTString()
         let id = mongoose.Types.ObjectId()
-        if (time.length === 11) {
-            res_Time = time.filter((e, i) => i != 5 && i != 6 && i !== 7)
-        }
-        else {
-            res_Time = time.filter((e, i) => i != 4 && i != 5 && i !== 6)
-        }
         let res_date = new Date().toUTCString().split(" ").filter((e, i) => i === 1 || i === 2).join(" ")
         let response = await Users.findOneAndUpdate(
             { _id: mongoose.Types.ObjectId(req.params.id) },
-            { $push: { draft: {...req.body.msg,_id:id,Time:res_Time.join(""),date:res_date,} } },
+            { $push: { draft: {...req.body.msg,_id:id,Time:time,date:res_date,} } },
             { new: true }
         )
         res.send(response)
